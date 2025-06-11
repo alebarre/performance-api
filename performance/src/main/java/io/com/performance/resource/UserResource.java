@@ -1,12 +1,16 @@
-package io.com.performance;
+package io.com.performance.resource;
 
 import io.com.performance.DTO.UserDTO;
 import io.com.performance.domain.HttpResponse;
 import io.com.performance.domain.User;
 import io.com.performance.service.UserService;
 import jakarta.validation.Valid;
+import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -25,6 +29,15 @@ import static org.springframework.http.HttpStatus.CREATED;
 public class UserResource {
 
     private final UserService userService;
+
+    private final AuthenticationManager authenticationManager;
+
+    @PostMapping("/login")
+    public ResponseEntity<HttpResponse> login(String email, String password){
+        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email, password));
+        return null;
+    }
+
 
     @PostMapping("/register")
     public ResponseEntity<HttpResponse> saveUser(@RequestBody @Valid User user){
