@@ -28,7 +28,7 @@ public class SecurityConfig {
     private final CustomAccessDeniedHandler customAccessDeniedHandler;
     private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
     private static final String[] PUBLIC_URLS = {};
-    private static final int STRENGHT = 12;
+
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -58,9 +58,6 @@ public class SecurityConfig {
         return new ProviderManager(authProvider);
     }
 
-    @Bean
-    public BCryptPasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder(STRENGHT);
-    }
+
 
 }
