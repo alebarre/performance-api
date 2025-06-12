@@ -3,15 +3,12 @@ package io.com.performance.resource;
 import io.com.performance.DTO.UserDTO;
 import io.com.performance.domain.HttpResponse;
 import io.com.performance.domain.User;
+import io.com.performance.form.LoginForm;
 import io.com.performance.service.UserService;
 import jakarta.validation.Valid;
-import lombok.AllArgsConstructor;
-import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,7 +19,9 @@ import java.net.URI;
 import java.util.Map;
 
 import static java.time.LocalDateTime.now;
+import static java.util.Map.*;
 import static org.springframework.http.HttpStatus.CREATED;
+import static org.springframework.http.HttpStatus.OK;
 
 @RestController
 @RequestMapping(path = "/user")
@@ -37,9 +36,17 @@ public class UserResource {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<HttpResponse> login(String email, String password){
-        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email, password));
-        return null;
+    public ResponseEntity<HttpResponse> login(@RequestBody @Valid LoginForm loginForm) {
+        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginForm.getEmail(), loginForm.getPassword()));
+        UserDTO userDTO = userService.getUserByEmail(loginForm.getEmail());
+        return ResponseEntity.ok().body(
+                HttpResponse.builder()
+                        .timeStamp(now().toString())
+                        .data(of("user", userDTO))
+                        .message("Login success!")
+                        .status(OK)
+                        .statusCode(OK.value())
+                        .build());
     }
 
 
@@ -49,7 +56,7 @@ public class UserResource {
         return ResponseEntity.created(getUri()).body(
                 HttpResponse.builder()
                         .timeStamp(now().toString())
-                        .data(Map.of("user", userDto))
+                        .data(of("user", userDto))
                         .message("User created")
                         .status(CREATED)
                         .statusCode(CREATED.value())

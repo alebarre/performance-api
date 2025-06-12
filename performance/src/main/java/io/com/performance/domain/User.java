@@ -30,6 +30,7 @@ public class User {
 
     @NotEmpty(message = "Password cannot be empty")
     private String password;
+    private String address;
     private String phone;
     private String title;
     private String bio;

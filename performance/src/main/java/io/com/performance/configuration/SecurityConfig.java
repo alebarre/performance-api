@@ -13,51 +13,42 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
 import static org.springframework.http.HttpMethod.*;
+import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
 
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
-
     private final BCryptPasswordEncoder encoder;
     private final CustomAccessDeniedHandler customAccessDeniedHandler;
     private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
-    private static final String[] PUBLIC_URLS = {};
+    private final UserDetailsService userDetailsService;
 
+    private static final String[] PUBLIC_URLS = { "/user/login/**" };
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http
-                .csrf(AbstractHttpConfigurer::disable)
-                .cors(AbstractHttpConfigurer::disable)
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(PUBLIC_URLS).permitAll()
-                        .requestMatchers(DELETE, "/user/delete/**").hasAuthority("DELETE:USER")
-                        .requestMatchers(DELETE, "/customer/delete/**").hasAuthority("DELETE:CUSTOMER")
-                        .anyRequest().authenticated()
-                )
-                .exceptionHandling(ex -> ex
-                        .accessDeniedHandler(customAccessDeniedHandler)
-                        .authenticationEntryPoint(customAuthenticationEntryPoint)
-                );
-
+        http.csrf().disable().cors().disable();
+        http.sessionManagement().sessionCreationPolicy(STATELESS);
+        http.authorizeHttpRequests().requestMatchers(PUBLIC_URLS).permitAll();
+        http.authorizeHttpRequests().requestMatchers(DELETE, "/user/delete/**").hasAnyAuthority("DELETE:USER");
+        http.authorizeHttpRequests().requestMatchers(DELETE, "/customer/delete/**").hasAnyAuthority("DELETE:CUSTOMER");
+        http.exceptionHandling().accessDeniedHandler(customAccessDeniedHandler).authenticationEntryPoint(customAuthenticationEntryPoint);
+        http.authorizeHttpRequests().anyRequest().authenticated();
         return http.build();
     }
 
     @Bean
     public AuthenticationManager authenticationManager() {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
-        authProvider.setUserDetailsService(null);
+        authProvider.setUserDetailsService(userDetailsService);
         authProvider.setPasswordEncoder(encoder);
         return new ProviderManager(authProvider);
     }
-
-
-
 }

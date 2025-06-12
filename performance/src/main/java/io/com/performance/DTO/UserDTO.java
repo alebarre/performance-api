@@ -14,6 +14,7 @@ public class UserDTO {
     private String phone;
     private String title;
     private String bio;
+    private String address;
     private String imageUrl;
     private boolean enabled;
     private boolean isNotLocked;
