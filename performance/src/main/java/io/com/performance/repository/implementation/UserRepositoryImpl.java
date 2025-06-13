@@ -128,7 +128,7 @@ public class UserRepositoryImpl implements UserRepository<User>, UserDetailsServ
         }
     }
 
-    private User getUserByEmail(String email) {
+    public User getUserByEmail(String email) {
 
         try {
             User user = jdbc.queryForObject(SELECT_USER_BY_EMAIL_QUERY, of("email", email), new UserRowMapper());
