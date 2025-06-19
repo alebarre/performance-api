@@ -3,6 +3,7 @@ package io.com.performance.repository.implementation;
 import io.com.performance.domain.Role;
 import io.com.performance.domain.User;
 import io.com.performance.domain.UserPrincipal;
+import io.com.performance.DTO.UserDTO;
 import io.com.performance.excecption.ApiException;
 import io.com.performance.repository.RoleRepository;
 import io.com.performance.repository.UserRepository;
@@ -21,16 +22,20 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Repository;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
+import static io.com.performance.constant.Constants.DATE_FORMAT;
 import static io.com.performance.enumeration.RoleType.ROLE_USER;
 import static io.com.performance.enumeration.VerificationType.ACCOUNT;
 import static io.com.performance.query.UserQuery.*;
 import static java.util.Map.of;
 import static java.util.Objects.requireNonNull;
+import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang3.time.DateFormatUtils.format;
+import static org.apache.commons.lang3.time.DateUtils.addDays;
 
 @Repository
 @RequiredArgsConstructor
@@ -127,7 +132,7 @@ public class UserRepositoryImpl implements UserRepository<User>, UserDetailsServ
             return new UserPrincipal(user, roleRepository.getRoleByUserId(user.getId()).getPermission());
         }
     }
-
+@Override
     public User getUserByEmail(String email) {
 
         try {
@@ -141,5 +146,20 @@ public class UserRepositoryImpl implements UserRepository<User>, UserDetailsServ
         }
 
 
+    }
+
+    @Override
+    public void sendVerificationCode(UserDTO user) {
+        String expirationDate = format(addDays(new Date(), 1), DATE_FORMAT);
+        String verificationCode = randomAlphabetic(8).toUpperCase();
+        try {
+            jdbc.update(DELETE_VERIFICATION_CODE_BY_USER_ID, of("id", user.getId()));
+            jdbc.update(INSERT_VERIFICATION_CODE_QUERY, of("userId", user.getId(), "code", verificationCode, "expirationDate", expirationDate));
+            //sendSMS(user.getPhone(), "From: SecureCapita \nVerification code\n" + verificationCode);
+            log.info("Verification Code: {}", verificationCode);
+        } catch (Exception exception) {
+            log.error(exception.getMessage());
+            throw new ApiException("An error occurred. Please try again.");
+        }
     }
 }

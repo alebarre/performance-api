@@ -1,5 +1,6 @@
 package io.com.performance.repository;
 
+import io.com.performance.DTO.UserDTO;
 import io.com.performance.domain.User;
 import org.springframework.stereotype.Repository;
 
@@ -19,4 +20,5 @@ public interface UserRepository<T extends User> {
     /* More complex CRUD operations*/
     User getUserByEmail(String email);
 
+    void sendVerificationCode(UserDTO user);
 }
