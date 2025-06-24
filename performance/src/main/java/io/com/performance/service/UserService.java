@@ -15,4 +15,6 @@ public interface UserService {
 
     UserDTO getUserById(Long userId);
 
+    UserDTO verifyCode(String email, String code);
+
 }

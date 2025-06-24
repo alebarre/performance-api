@@ -31,7 +31,7 @@ import static java.util.stream.Collectors.toList;
 @Component
 @RequiredArgsConstructor
 public class TokenProvider {
-    private static final String GET_ARRAYS_LLC = "GET_ARRAYS_LLC";
+    private static final String PERFORMANCE_SPT_LLC = "PERFORMANCE_SPORTS_LLC";
     private static final String CUSTOMER_MANAGEMENT_SERVICE = "CUSTOMER_MANAGEMENT_SERVICE";
     private static final String AUTHORITIES = "AUTHORITIES";
     private static final long ACCESS_TOKEN_EXPIRATION_TIME = 1_800_000; // 30 minutes
@@ -42,14 +42,14 @@ public class TokenProvider {
     private final UserService userService;
 
     public String createAccessToken(UserPrincipal userPrincipal) {
-        return JWT.create().withIssuer(GET_ARRAYS_LLC).withAudience(CUSTOMER_MANAGEMENT_SERVICE)
+        return JWT.create().withIssuer(PERFORMANCE_SPT_LLC).withAudience(CUSTOMER_MANAGEMENT_SERVICE)
                 .withIssuedAt(new Date()).withSubject(userPrincipal.getUsername()).withArrayClaim(AUTHORITIES, getClaimsFromUser(userPrincipal))
                 .withExpiresAt(new Date(currentTimeMillis() + ACCESS_TOKEN_EXPIRATION_TIME))
                 .sign(HMAC512(secret.getBytes()));
     }
 
     public String createRefreshToken(UserPrincipal userPrincipal) {
-        return JWT.create().withIssuer(GET_ARRAYS_LLC).withAudience(CUSTOMER_MANAGEMENT_SERVICE)
+        return JWT.create().withIssuer(PERFORMANCE_SPT_LLC).withAudience(CUSTOMER_MANAGEMENT_SERVICE)
                 .withIssuedAt(new Date()).withSubject(userPrincipal.getUsername())
                 .withExpiresAt(new Date(currentTimeMillis() + REFRESH_TOKEN_EXPIRATION_TIME))
                 .sign(HMAC512(secret.getBytes()));
@@ -103,7 +103,7 @@ public class TokenProvider {
         JWTVerifier verifier;
         try {
             Algorithm algorithm = HMAC512(secret);
-            verifier = JWT.require(algorithm).withIssuer(GET_ARRAYS_LLC).build();
+            verifier = JWT.require(algorithm).withIssuer(PERFORMANCE_SPT_LLC).build();
         } catch (JWTVerificationException exception) { throw new JWTVerificationException(TOKEN_CANNOT_BE_VERIFIED);}
         return verifier;
     }

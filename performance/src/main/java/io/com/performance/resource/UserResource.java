@@ -12,10 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import jakarta.validation.Valid;
@@ -37,8 +34,8 @@ public class UserResource {
 
     @PostMapping("/login")
     public ResponseEntity<HttpResponse> login(@RequestBody @Valid LoginForm loginForm) {
-        UserDTO user = userService.getUserByEmail(loginForm.getEmail());
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginForm.getEmail(), loginForm.getPassword()));
+        UserDTO user = userService.getUserByEmail(loginForm.getEmail());
         return user.isUsingMfa() ? sendVerificationCode(user) : sendResponse(user);
 
     }
@@ -53,6 +50,20 @@ public class UserResource {
                         .message("User created")
                         .status(CREATED)
                         .statusCode(CREATED.value())
+                        .build());
+    }
+
+    @GetMapping("/verify/code/{email}/{code}")
+    public ResponseEntity<HttpResponse> verifyCode(@RequestBody @Valid @PathVariable("email") String email, @PathVariable("code") String code) {
+        UserDTO userDto = userService.verifyCode(email, code);
+        return ResponseEntity.ok().body(
+                HttpResponse.builder()
+                        .timeStamp(now().toString())
+                        .data(of("user", userDto, "access_token", tokenProvider.createAccessToken(getUserPrincipal(userDto))
+                                , "refresh_token", tokenProvider.createRefreshToken(getUserPrincipal(userDto))))
+                        .message("Login Success!")
+                        .status(OK)
+                        .statusCode(OK.value())
                         .build());
     }
 
