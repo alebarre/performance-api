@@ -16,18 +16,26 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 import java.util.List;
 
-import static io.com.performance.constant.Constants.*;
 import static io.com.performance.utils.ExceptionUtils.processError;
 import static java.util.Arrays.asList;
 import static java.util.Optional.ofNullable;
-import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
+import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
+/**
+ * @author Junior RT
+ * @version 1.0
+ * @license Get Arrays, LLC (https://getarrays.io)
+ * @since 1/2/2023
+ */
 
 @Component
 @RequiredArgsConstructor
 @Slf4j
 public class CustomAuthorizationFilter extends OncePerRequestFilter {
+    private static final String TOKEN_PREFIX = "Bearer ";
+    private static final String[] PUBLIC_ROUTES = { "/user/new/password", "/user/login", "/user/verify/code", "/user/register", "/user/refresh/token", "/user/image" };
+    private static final String HTTP_OPTIONS_METHOD = "OPTIONS";
     private final TokenProvider tokenProvider;
 
     @Override
@@ -35,13 +43,11 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
         try {
             String token = getToken(request);
             Long userId = getUserId(request);
-            if (tokenProvider.isTokenValid(userId, token)) {
+            if(tokenProvider.isTokenValid(userId, token)) {
                 List<GrantedAuthority> authorities = tokenProvider.getAuthorities(token);
                 Authentication authentication = tokenProvider.getAuthentication(userId, authorities, request);
                 SecurityContextHolder.getContext().setAuthentication(authentication);
-            } else {
-                SecurityContextHolder.clearContext();
-            }
+            } else { SecurityContextHolder.clearContext(); }
             filter.doFilter(request, response);
         } catch (Exception exception) {
             log.error(exception.getMessage());

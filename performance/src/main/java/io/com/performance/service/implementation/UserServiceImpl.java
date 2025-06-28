@@ -3,7 +3,6 @@ package io.com.performance.service.implementation;
 import io.com.performance.DTO.UserDTO;
 import io.com.performance.domain.Role;
 import io.com.performance.domain.User;
-import io.com.performance.dtomapper.UserDTOMapper;
 import io.com.performance.repository.RoleRepository;
 import io.com.performance.repository.UserRepository;
 import io.com.performance.service.UserService;
@@ -21,22 +20,17 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDTO createUser(User user) {
-        return UserDTOMapper.fromUser(userRepository.create(user));
+        return mapToUserDTO(userRepository.create(user));
     }
 
     @Override
     public UserDTO getUserByEmail(String email) {
-        return UserDTOMapper.fromUser(userRepository.getUserByEmail(email));
+        return mapToUserDTO(userRepository.getUserByEmail(email));
     }
 
     @Override
     public void sendVerificationCode(UserDTO user) {
         userRepository.sendVerificationCode(user);
-    }
-
-    @Override
-    public User getUser(String email) {
-        return userRepository.getUserByEmail(email);
     }
 
     @Override
@@ -46,7 +40,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDTO verifyCode(String email, String code) {
-        return fromUser(userRepository.verifyCode(email, code));
+        return mapToUserDTO(userRepository.verifyCode(email, code));
     }
 
     private UserDTO mapToUserDTO(User user) {

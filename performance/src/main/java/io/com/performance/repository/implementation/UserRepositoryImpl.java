@@ -129,7 +129,6 @@ public class UserRepositoryImpl implements UserRepository<User>, UserDetailsServ
             throw new ApiException("An error occurred. Please try again.");
         }
 
-
     }
 
     @Override
@@ -139,7 +138,7 @@ public class UserRepositoryImpl implements UserRepository<User>, UserDetailsServ
         try {
             jdbc.update(DELETE_VERIFICATION_CODE_BY_USER_ID, of("id", user.getId()));
             jdbc.update(INSERT_VERIFICATION_CODE_QUERY, of("userId", user.getId(), "code", verificationCode, "expirationDate", expirationDate));
-            sendSMS(user.getPhone(), "From: Performance Sports \nVerification code\n" + verificationCode);
+            sendSMS(user.getPhone(), "De: Performance Sports \nUse esse código para autenticar seu acesso\n" + verificationCode);
             log.info("Verification Code: {}", verificationCode);
         } catch (Exception exception) {
             log.error(exception.getMessage());
@@ -149,11 +148,12 @@ public class UserRepositoryImpl implements UserRepository<User>, UserDetailsServ
 
     @Override
     public User verifyCode(String email, String code) {
-
+        if(isVerificationCodeExpired(code)) throw new ApiException("Verification code has expired. Please log in again.");
         try {
             User userByCode = jdbc.queryForObject(SELECT_USER_BY_USER_CODE_QUERY, of("code", code), new UserRowMapper());
-            User userByEmail = jdbc.queryForObject(SELECT_USER_BY_EMAIL_QUERY, of("email", code), new UserRowMapper());
+            User userByEmail = jdbc.queryForObject(SELECT_USER_BY_EMAIL_QUERY, of("email", email), new UserRowMapper());
             if(userByCode.getEmail().equalsIgnoreCase(userByEmail.getEmail())){
+                jdbc.update(DELETE_CODE, of("code",  code));
                 return userByCode;
             } else {
                 throw new ApiException("Code is invalid. Please try again.");
@@ -164,6 +164,16 @@ public class UserRepositoryImpl implements UserRepository<User>, UserDetailsServ
             throw new ApiException("An error occurred, please try again");
         }
 
+    }
+
+    private Boolean isVerificationCodeExpired(String code) {
+        try {
+            return jdbc.queryForObject(SELECT_CODE_EXPIRATION_QUERY, of("code", code), Boolean.class);
+        } catch (EmptyResultDataAccessException exception) {
+            throw new ApiException("This code is no longer valid. Please login again.");
+        } catch (Exception exception) {
+            throw new ApiException("An error occurred. Please try again.");
+        }
     }
 
     private Integer getEmailCount(String email) {

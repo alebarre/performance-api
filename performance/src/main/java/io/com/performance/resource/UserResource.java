@@ -12,16 +12,20 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import jakarta.validation.Valid;
 import java.net.URI;
 
+import static io.com.performance.dtomapper.UserDTOMapper.toUser;
 import static java.time.LocalDateTime.now;
 import static java.util.Map.of;
+import static net.sf.jsqlparser.util.validation.metadata.NamedObject.user;
 import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.http.HttpStatus.OK;
+import static org.springframework.web.servlet.support.ServletUriComponentsBuilder.*;
 
 @RestController
 @RequestMapping(path = "/user")
@@ -53,6 +57,20 @@ public class UserResource {
                         .build());
     }
 
+    @GetMapping("/profile")
+    public ResponseEntity<HttpResponse> profile(Authentication authentication) {
+        UserDTO user = userService.getUserByEmail(authentication.getName());
+        System.out.println(authentication.getPrincipal());
+        return ResponseEntity.ok().body(
+                HttpResponse.builder()
+                        .timeStamp(now().toString())
+                        .data(of("user", user))
+                        .message("Profile retrieved.")
+                        .status(OK)
+                        .statusCode(OK.value())
+                        .build());
+    }
+
     @GetMapping("/verify/code/{email}/{code}")
     public ResponseEntity<HttpResponse> verifyCode(@RequestBody @Valid @PathVariable("email") String email, @PathVariable("code") String code) {
         UserDTO userDto = userService.verifyCode(email, code);
@@ -68,7 +86,7 @@ public class UserResource {
     }
 
     private URI getUri() {
-        return URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("/user/get/<userId>").toUriString());
+        return URI.create(fromCurrentContextPath().path("/user/get/<userId>").toUriString());
     }
 
     private ResponseEntity<HttpResponse> sendResponse(UserDTO user) {
@@ -84,7 +102,7 @@ public class UserResource {
     }
 
     private UserPrincipal getUserPrincipal(UserDTO user) {
-        return new UserPrincipal(userService.getUser(user.getEmail()), roleService.getRoleByUserId(user.getId()).getPermission());
+        return new UserPrincipal(toUser(userService.getUserByEmail(user.getEmail())), roleService.getRoleByUserId(user.getId()).getPermission());
     }
 
     private ResponseEntity<HttpResponse> sendVerificationCode(UserDTO user) {
