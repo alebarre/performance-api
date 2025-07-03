@@ -25,6 +25,7 @@ import static java.util.Map.of;
 import static net.sf.jsqlparser.util.validation.metadata.NamedObject.user;
 import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.http.HttpStatus.OK;
+import static org.springframework.security.authentication.UsernamePasswordAuthenticationToken.unauthenticated;
 import static org.springframework.web.servlet.support.ServletUriComponentsBuilder.*;
 
 @RestController
@@ -38,7 +39,7 @@ public class UserResource {
 
     @PostMapping("/login")
     public ResponseEntity<HttpResponse> login(@RequestBody @Valid LoginForm loginForm) {
-        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginForm.getEmail(), loginForm.getPassword()));
+        authenticationManager.authenticate(unauthenticated(loginForm.getEmail(), loginForm.getPassword()));
         UserDTO user = userService.getUserByEmail(loginForm.getEmail());
         return user.isUsingMfa() ? sendVerificationCode(user) : sendResponse(user);
 
@@ -60,7 +61,7 @@ public class UserResource {
     @GetMapping("/profile")
     public ResponseEntity<HttpResponse> profile(Authentication authentication) {
         UserDTO user = userService.getUserByEmail(authentication.getName());
-        System.out.println(authentication.getPrincipal());
+        //System.out.println(authentication);
         return ResponseEntity.ok().body(
                 HttpResponse.builder()
                         .timeStamp(now().toString())

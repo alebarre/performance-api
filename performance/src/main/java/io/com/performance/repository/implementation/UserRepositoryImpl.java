@@ -138,7 +138,7 @@ public class UserRepositoryImpl implements UserRepository<User>, UserDetailsServ
         try {
             jdbc.update(DELETE_VERIFICATION_CODE_BY_USER_ID, of("id", user.getId()));
             jdbc.update(INSERT_VERIFICATION_CODE_QUERY, of("userId", user.getId(), "code", verificationCode, "expirationDate", expirationDate));
-            sendSMS(user.getPhone(), "De: Performance Sports \nUse esse código para autenticar seu acesso\n" + verificationCode);
+            //sendSMS(user.getPhone(), "De: Performance Sports \nUse esse código para autenticar seu acesso\n" + verificationCode);
             log.info("Verification Code: {}", verificationCode);
         } catch (Exception exception) {
             log.error(exception.getMessage());
