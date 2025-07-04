@@ -19,19 +19,15 @@ import static java.time.LocalDateTime.now;
 import static org.springframework.http.HttpStatus.*;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
-/**
- * @author Junior RT
- * @version 1.0
- * @license Get Arrays, LLC (https://getarrays.io)
- * @since 1/5/2023
- */
-
 @Slf4j
 public class ExceptionUtils {
 
     public static void processError(HttpServletRequest request, HttpServletResponse response, Exception exception) {
-        if(exception instanceof ApiException || exception instanceof DisabledException || exception instanceof LockedException ||
-                exception instanceof BadCredentialsException || exception instanceof InvalidClaimException) {
+        if(exception instanceof ApiException
+                || exception instanceof DisabledException
+                || exception instanceof LockedException
+                || exception instanceof BadCredentialsException
+                || exception instanceof InvalidClaimException) {
             HttpResponse httpResponse = getHttpResponse(response, exception.getMessage(), BAD_REQUEST);
             writeResponse(response, httpResponse);
         } else if (exception instanceof TokenExpiredException) {
