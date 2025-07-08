@@ -9,8 +9,10 @@ import io.com.performance.excecption.ApiException;
 import io.com.performance.repository.RoleRepository;
 import io.com.performance.repository.UserRepository;
 import io.com.performance.rowmapper.UserRowMapper;
+import io.com.performance.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -24,10 +26,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Repository;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -38,7 +36,6 @@ import static io.com.performance.enumeration.RoleType.ROLE_USER;
 import static io.com.performance.enumeration.VerificationType.ACCOUNT;
 import static io.com.performance.enumeration.VerificationType.PASSWORD;
 import static io.com.performance.query.UserQuery.*;
-import static io.com.performance.utils.SmsUtils.sendSMS;
 import static java.util.Map.of;
 import static java.util.Objects.requireNonNull;
 import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
@@ -217,6 +214,19 @@ public class UserRepositoryImpl implements UserRepository<User>, UserDetailsServ
             jdbc.update(DELETE_VERIFICATION_BY_URL_QUERY, of("url", getVerificationUrl(key, PASSWORD.getType())));
         } catch (Exception exception) {
             log.error(exception.getMessage());
+            throw new ApiException("An error occurred. Please try again.");
+        }
+    }
+
+    @Override
+    public User verifyAccount(String key) {
+        try {
+            User user = jdbc.queryForObject(SELECT_USER_BY_ACCOUNT_URL_QUERY, of("url", getVerificationUrl(key, ACCOUNT.getType())), new UserRowMapper());
+            jdbc.update(UPDATE_USER_ENABLED_QUERY, of("enabled", true, "id", user.getId()));
+            return user;
+        } catch (EmptyResultDataAccessException exception) {
+            throw new ApiException("Account verified");
+        } catch (Exception exception) {
             throw new ApiException("An error occurred. Please try again.");
         }
     }
