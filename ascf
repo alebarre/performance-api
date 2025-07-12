@@ -1,0 +1,47 @@
+[33mcommit 8fc4c0e574cf56f607523750bf8232d54f5fb8df[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmaster[m[33m)[m
+Author: alebarre <plotartemail@gmail.com>
+Date:   Fri Jun 27 21:37:09 2025 -0300
+
+    Token and Authorization Filter
+
+[33mcommit 947e20585e766b5f7a04ac98ce212b568368732e[m[33m ([m[1;31morigin/master[m[33m)[m
+Author: alebarre <plotartemail@gmail.com>
+Date:   Mon Jun 23 21:58:16 2025 -0300
+
+    Token and SMS methods
+
+[33mcommit 3b999bdcb87297aa628dd685f873815ac2defa14[m
+Author: alebarre <plotartemail@gmail.com>
+Date:   Thu Jun 19 00:28:25 2025 -0300
+
+    Updating code with forwarded content
+
+[33mcommit 59bc0e95f3df95541a87149ef48e0daf3600ded3[m
+Author: alebarre <plotartemail@gmail.com>
+Date:   Fri Jun 13 17:32:34 2025 -0300
+
+    Implementing and testing login resource - 2
+
+[33mcommit 0b51518f5d0b411f43e51b6d99551ca226e14283[m
+Author: alebarre <plotartemail@gmail.com>
+Date:   Wed Jun 11 21:05:49 2025 -0300
+
+    Implementing and testing login resource
+
+[33mcommit 1028d713824eb164953049e9d67b17337816ea65[m
+Author: alebarre <plotartemail@gmail.com>
+Date:   Wed Jun 11 10:51:04 2025 -0300
+
+    Fixing circular reference
+
+[33mcommit 88ec5cde544999117c2d41224382c129514519ad[m
+Author: alebarre <plotartemail@gmail.com>
+Date:   Wed Jun 11 10:37:19 2025 -0300
+
+    Starting to dealing with security features
+
+[33mcommit 0a44f4eba7728f1a7027fef7d63e8807d9c852ed[m
+Author: alebarre <plotartemail@gmail.com>
+Date:   Tue Jun 10 20:32:06 2025 -0300
+
+    First commit
