@@ -210,7 +210,7 @@ public class UserResource {
             Authentication authenticate = authenticationManager.authenticate(unauthenticated(email, password));
             return authenticate;
         } catch (AuthenticationException ex) {
-            processError(request, response, ex);
+            //processError(request, response, ex);
             throw new ApiException(ex.getMessage());
         }
     }

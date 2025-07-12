@@ -39,5 +39,7 @@ public class User {
     private boolean isNotLocked;
     private boolean isUsingMfa;
     private LocalDateTime createdAt;
+    private String roleName;
+    private String permissions;
 
 }
