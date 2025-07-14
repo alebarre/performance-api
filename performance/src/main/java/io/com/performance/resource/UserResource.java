@@ -9,27 +9,25 @@ import io.com.performance.form.LoginForm;
 import io.com.performance.provider.TokenProvider;
 import io.com.performance.service.RoleService;
 import io.com.performance.service.UserService;
+import io.com.performance.utils.UserUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.apache.http.auth.AUTH;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import jakarta.validation.Valid;
 import java.net.URI;
 
 import static io.com.performance.constant.Constants.TOKEN_PREFIX;
 import static io.com.performance.dtomapper.UserDTOMapper.toUser;
-import static io.com.performance.utils.ExceptionUtils.processError;
+import static io.com.performance.utils.UserUtils.getAuthenticatedUser;
+import static io.com.performance.utils.UserUtils.getLoggedInUser;
 import static java.time.LocalDateTime.now;
 import static java.util.Map.of;
-import static net.sf.jsqlparser.util.validation.metadata.NamedObject.user;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.HttpStatus.*;
 import static org.springframework.security.authentication.UsernamePasswordAuthenticationToken.unauthenticated;
@@ -51,7 +49,7 @@ public class UserResource {
         Authentication authentication = authenticate(loginForm.getEmail(), loginForm.getPassword());
         System.out.println(authentication);
         System.out.println(((UserPrincipal) authentication.getPrincipal()).getUser());
-        UserDTO user = getAuthentication(authentication);
+        UserDTO user = getLoggedInUser(authentication);
         return user.isUsingMfa() ? sendVerificationCode(user) : sendResponse(user);
     }
 
@@ -74,12 +72,12 @@ public class UserResource {
 
     @GetMapping("/profile")
     public ResponseEntity<HttpResponse> profile(Authentication authentication) {
-        UserDTO user = userService.getUserByEmail(authentication.getName());
+        UserDTO user = userService.getUserByEmail(getAuthenticatedUser(authentication).getEmail());
         //System.out.println(authentication);
         return ResponseEntity.ok().body(
                 HttpResponse.builder()
                         .timeStamp(now().toString())
-                        .data(of("user", user))
+                            .data(of("user", user))
                         .message("Profile retrieved.")
                         .status(OK)
                         .statusCode(OK.value())
