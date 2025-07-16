@@ -6,6 +6,7 @@ import io.com.performance.DTO.UserDTO;
 import io.com.performance.domain.UserPrincipal;
 import io.com.performance.excecption.ApiException;
 import io.com.performance.form.LoginForm;
+import io.com.performance.form.UpdateForm;
 import io.com.performance.provider.TokenProvider;
 import io.com.performance.service.RoleService;
 import io.com.performance.service.UserService;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
 import java.net.URI;
+import java.util.concurrent.TimeUnit;
 
 import static io.com.performance.constant.Constants.TOKEN_PREFIX;
 import static io.com.performance.dtomapper.UserDTOMapper.toUser;
@@ -79,6 +81,21 @@ public class UserResource {
                         .timeStamp(now().toString())
                             .data(of("user", user))
                         .message("Profile retrieved.")
+                        .status(OK)
+                        .statusCode(OK.value())
+                        .build());
+    }
+
+    @PatchMapping("/update")
+    public ResponseEntity<HttpResponse> updateUser(@RequestBody @Valid UpdateForm user) throws InterruptedException {
+        TimeUnit.SECONDS.sleep(3);
+        UserDTO updateUser = userService.updateUserDetails(user);
+        //System.out.println(authentication);
+        return ResponseEntity.ok().body(
+                HttpResponse.builder()
+                        .timeStamp(now().toString())
+                        .data(of("user", updateUser))
+                        .message("User updated.")
                         .status(OK)
                         .statusCode(OK.value())
                         .build());
@@ -153,7 +170,7 @@ public class UserResource {
     public ResponseEntity<HttpResponse> refreshToken(HttpServletRequest request) {
         if(isHeaderAndTokenValid(request)){
             String token = request.getHeader(AUTHORIZATION).substring(TOKEN_PREFIX.length());
-            UserDTO user = userService.getUserByEmail(tokenProvider.getSubject(token, request));
+            UserDTO user = userService.getUserById(tokenProvider.getSubject(token, request));
             return ResponseEntity.ok().body(
                     HttpResponse.builder()
                             .timeStamp(now().toString())

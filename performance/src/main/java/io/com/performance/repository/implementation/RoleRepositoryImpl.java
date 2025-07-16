@@ -53,7 +53,7 @@ public class RoleRepositoryImpl implements RoleRepository<Role> {
 
     @Override
     public void addRoleToUser(Long userId, String roleName) {
-        log.info("Adding role {} to user id: {}", roleName, userId);
+        log.info("Fetching role for user id: {}", roleName, userId);
         try {
             Role role = jdbc.queryForObject(SELECT_ROLE_BY_NAME_QUERY, of("name", roleName), new RoleRowMapper());
             jdbc.update(INSERT_ROLE_TO_USER_QUERY, of("userId", userId, "roleId", Objects.requireNonNull(role).getId()));

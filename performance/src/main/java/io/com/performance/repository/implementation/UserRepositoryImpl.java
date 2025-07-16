@@ -6,13 +6,12 @@ import io.com.performance.domain.UserPrincipal;
 import io.com.performance.DTO.UserDTO;
 import io.com.performance.enumeration.VerificationType;
 import io.com.performance.excecption.ApiException;
+import io.com.performance.form.UpdateForm;
 import io.com.performance.repository.RoleRepository;
 import io.com.performance.repository.UserRepository;
 import io.com.performance.rowmapper.UserRowMapper;
-import io.com.performance.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -96,7 +95,14 @@ public class UserRepositoryImpl implements UserRepository<User>, UserDetailsServ
 
     @Override
     public User get(Long id) {
-        return null;
+        try {
+            return jdbc.queryForObject(SELECT_USER_BY_ID_QUERY, of("id", id), new UserRowMapper());
+        } catch (EmptyResultDataAccessException exception){
+            throw new ApiException("No user found by id: " + id);
+        } catch (Exception exception) {
+            log.error(exception.getMessage());
+            throw new ApiException("An error occurred. Please try again.");
+        }
     }
 
     @Override
@@ -230,6 +236,21 @@ public class UserRepositoryImpl implements UserRepository<User>, UserDetailsServ
         }
     }
 
+    @Override
+    public User updateUserDetails(UpdateForm user) {
+        try {
+            int rowsAffected = jdbc.update(UPDATE_USER_DETAILS_QUERY, getUserDetailsSqlParametersSource(user));
+            if (rowsAffected == 0) {
+                throw new ApiException("No user found by id: " + user.getId());
+            }
+            return get(user.getId());
+        } catch (ApiException e) {
+            throw e; // preserve the message set above
+        } catch (Exception exception) {
+            throw new ApiException("An error occurred. Please try again.");
+        }
+    }
+
     private boolean isTokenMatch(String url, String tokenToCompare) {
         String prefix = "verifypassword/";
         int index = url.indexOf(prefix);
@@ -274,6 +295,18 @@ public class UserRepositoryImpl implements UserRepository<User>, UserDetailsServ
                 .addValue("lastName", user.getLastName())
                 .addValue("email", user.getEmail())
                 .addValue("password", encoder.encode(user.getPassword()));
+    }
+
+    private SqlParameterSource getUserDetailsSqlParametersSource(UpdateForm user) {
+        return new MapSqlParameterSource()
+                .addValue("id", user.getId())
+                .addValue("firstName", user.getFirstName())
+                .addValue("lastName", user.getLastName())
+                .addValue("email", user.getEmail())
+                .addValue("phone", user.getPhone())
+                .addValue("address", user.getAddress())
+                .addValue("title", user.getTitle())
+                .addValue("bio", user.getBio());
     }
 
     private String getVerificationUrl(String key, String type){

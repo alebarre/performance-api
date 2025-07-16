@@ -2,6 +2,8 @@ package io.com.performance.service;
 
 import io.com.performance.DTO.UserDTO;
 import io.com.performance.domain.User;
+import io.com.performance.form.UpdateForm;
+import jakarta.validation.Valid;
 
 public interface UserService {
 
@@ -22,4 +24,6 @@ public interface UserService {
     void renewPassword(String key, String password, String confirmPassword);
 
     UserDTO verifyAccount(String key);
+
+    UserDTO updateUserDetails(UpdateForm user);
 }

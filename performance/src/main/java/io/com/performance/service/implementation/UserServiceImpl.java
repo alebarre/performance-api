@@ -3,6 +3,7 @@ package io.com.performance.service.implementation;
 import io.com.performance.DTO.UserDTO;
 import io.com.performance.domain.Role;
 import io.com.performance.domain.User;
+import io.com.performance.form.UpdateForm;
 import io.com.performance.repository.RoleRepository;
 import io.com.performance.repository.UserRepository;
 import io.com.performance.service.UserService;
@@ -61,6 +62,11 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDTO verifyAccount(String key) {
         return mapToUserDTO(userRepository.verifyAccount(key));
+    }
+
+    @Override
+    public UserDTO updateUserDetails(UpdateForm user) {
+        return mapToUserDTO(userRepository.updateUserDetails(user));
     }
 
     private UserDTO mapToUserDTO(User user) {

@@ -15,14 +15,11 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.io.Serializable;
 import java.util.List;
-import java.util.Map;
 
 import static io.com.performance.constant.Constants.TOKEN_PREFIX;
 import static io.com.performance.utils.ExceptionUtils.processError;
 import static java.util.Arrays.asList;
-import static java.util.Map.*;
 import static java.util.Optional.ofNullable;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
@@ -43,11 +40,11 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filter) throws ServletException, IOException {
         try {
-            Map<String, Serializable> values = getRequestValues(request);
             String token  = getToken(request);
-            if(tokenProvider.isTokenValid((String) values.get(EMAIL_KEY), token)){
-                List<GrantedAuthority> authorities = tokenProvider.getAuthorities((String) values.get(TOKEN_KEY));
-                Authentication authentication = tokenProvider.getAuthentication((String) values.get(EMAIL_KEY), authorities, request);
+            Long userId = getUserId(request);
+            if(tokenProvider.isTokenValid(userId, token)){
+                List<GrantedAuthority> authorities = tokenProvider.getAuthorities(token);
+                Authentication authentication = tokenProvider.getAuthentication(userId, authorities, request);
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             } else {
                 SecurityContextHolder.clearContext();
@@ -68,8 +65,8 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
                 request.getMethod().equalsIgnoreCase(HTTP_OPTIONS_METHOD) || asList(PUBLIC_ROUTES).contains(request.getRequestURI());
     }
 
-    private Map<String, Serializable> getRequestValues(HttpServletRequest request) {
-        return of(EMAIL_KEY, tokenProvider.getSubject(getToken(request), request), TOKEN_KEY, getToken(request));
+    private Long getUserId(HttpServletRequest request) {
+        return tokenProvider.getSubject(getToken(request), request);
     }
 
     private String getToken(HttpServletRequest request) {

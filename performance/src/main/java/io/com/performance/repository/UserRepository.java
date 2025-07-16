@@ -2,6 +2,7 @@ package io.com.performance.repository;
 
 import io.com.performance.DTO.UserDTO;
 import io.com.performance.domain.User;
+import io.com.performance.form.UpdateForm;
 import org.springframework.stereotype.Repository;
 
 import java.util.Collection;
@@ -31,4 +32,6 @@ public interface UserRepository<T extends User> {
     void renewPassword(String key, String password, String confirmPassword);
 
     T verifyAccount(String key);
+
+    T updateUserDetails(UpdateForm user);
 }
