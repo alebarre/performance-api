@@ -4,6 +4,7 @@ import io.com.performance.DTO.UserDTO;
 import io.com.performance.domain.User;
 import io.com.performance.form.UpdateForm;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotEmpty;
 
 public interface UserService {
 
@@ -26,4 +27,8 @@ public interface UserService {
     UserDTO verifyAccount(String key);
 
     UserDTO updateUserDetails(UpdateForm user);
+
+    void updatePassword(Long id, String currentPassword, String newPassword, String confirmNewPassword);
+
+    void updateUserRole(Long userId, String roleName);
 }

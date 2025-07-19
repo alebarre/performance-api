@@ -251,6 +251,24 @@ public class UserRepositoryImpl implements UserRepository<User>, UserDetailsServ
         }
     }
 
+    @Override
+    public void updatePassword(Long id, String currentPassword, String newPassword, String confirmNewPassword) {
+        if (!newPassword.equals(confirmNewPassword)) {
+            throw new ApiException("Password doesn´t match. Please try again.");
+        } else {
+            User user = get(id);
+            if(encoder.matches(currentPassword, user.getPassword())) {
+                try {
+                    jdbc.update(UPDATE_USER_PASSWORD_BY_ID_QUERY, of("userId", id, "password", encoder.encode(newPassword)));
+                } catch (Exception exception) {
+                    throw new ApiException("An error occurred. Please try again.");
+                }
+            } else {
+                throw new ApiException("Incorrect current password. Please try again.");
+            }
+        }
+    }
+
     private boolean isTokenMatch(String url, String tokenToCompare) {
         String prefix = "verifypassword/";
         int index = url.indexOf(prefix);

@@ -7,6 +7,7 @@ import io.com.performance.domain.UserPrincipal;
 import io.com.performance.excecption.ApiException;
 import io.com.performance.form.LoginForm;
 import io.com.performance.form.UpdateForm;
+import io.com.performance.form.UpdatePasswordForm;
 import io.com.performance.provider.TokenProvider;
 import io.com.performance.service.RoleService;
 import io.com.performance.service.UserService;
@@ -79,7 +80,7 @@ public class UserResource {
         return ResponseEntity.ok().body(
                 HttpResponse.builder()
                         .timeStamp(now().toString())
-                            .data(of("user", user))
+                            .data(of("user", user, "roles", roleService.getRoles()))
                         .message("Profile retrieved.")
                         .status(OK)
                         .statusCode(OK.value())
@@ -149,6 +150,33 @@ public class UserResource {
                 HttpResponse.builder()
                         .timeStamp(now().toString())
                         .message("Password reset successfully.")
+                        .status(OK)
+                        .statusCode(OK.value())
+                        .build());
+    }
+
+    @PatchMapping("/update/password")
+    public ResponseEntity<HttpResponse> updatePassword(Authentication authentication, @RequestBody @Valid UpdatePasswordForm form) {
+        UserDTO userDTO = getAuthenticatedUser(authentication);
+        userService.updatePassword(userDTO.getId(), form.getCurrentPassword(), form.getNewPassword(), form.getConfirmNewPassword());
+        return ResponseEntity.ok().body(
+                HttpResponse.builder()
+                        .timeStamp(now().toString())
+                        .message("Password updated successfully.")
+                        .status(OK)
+                        .statusCode(OK.value())
+                        .build());
+    }
+
+    @PatchMapping("/update/role/{roleName}")
+    public ResponseEntity<HttpResponse> updateRole(Authentication authentication, @PathVariable("roleName") String roleName) {
+        UserDTO userDTO = getAuthenticatedUser(authentication);
+        userService.updateUserRole(userDTO.getId(), roleName);
+        return ResponseEntity.ok().body(
+                HttpResponse.builder()
+                        .data(of("user", userService.getUserById(userDTO.getId()), "roles", roleService.getRoles()))
+                        .timeStamp(now().toString())
+                        .message("Role updated successfully.")
                         .status(OK)
                         .statusCode(OK.value())
                         .build());
