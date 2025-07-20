@@ -86,6 +86,11 @@
             <artifactId>java-jwt</artifactId>
             <version>4.2.1</version>
         </dependency>
+        <dependency>
+            <groupId>io.com</groupId>
+            <artifactId>performance</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
     </dependencies>
 
     <profiles>

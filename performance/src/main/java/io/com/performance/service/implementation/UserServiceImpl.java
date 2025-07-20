@@ -9,6 +9,8 @@ import io.com.performance.repository.UserRepository;
 import io.com.performance.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
 import static io.com.performance.dtomapper.UserDTOMapper.*;
 
 
@@ -77,6 +79,21 @@ public class UserServiceImpl implements UserService {
     @Override
     public void updateUserRole(Long userId, String roleName) {
         roleRoleRepository.updateUserRole(userId, roleName);
+    }
+
+    @Override
+    public void updateUserAccount(Long userId, Boolean enabled, Boolean notLocked) {
+        userRepository.updateUserAccount(userId, enabled, notLocked);
+    }
+
+    @Override
+    public UserDTO toggleMfa(String email) {
+        return mapToUserDTO(userRepository.toggleMfa(email));
+    }
+
+    @Override
+    public void updateImage(UserDTO user, MultipartFile image) {
+        userRepository.updateImage(user, image);
     }
 
     private UserDTO mapToUserDTO(User user) {

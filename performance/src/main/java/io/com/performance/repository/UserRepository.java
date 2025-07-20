@@ -4,6 +4,7 @@ import io.com.performance.DTO.UserDTO;
 import io.com.performance.domain.User;
 import io.com.performance.form.UpdateForm;
 import org.springframework.stereotype.Repository;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Collection;
 
@@ -36,4 +37,10 @@ public interface UserRepository<T extends User> {
     T updateUserDetails(UpdateForm user);
 
     void updatePassword(Long id, String currentPassword, String newPassword, String confirmNewPassword);
+
+    void updateUserAccount(Long userId, Boolean enabled, Boolean notLocked);
+
+    T toggleMfa(String email);
+
+    void updateImage(UserDTO user, MultipartFile image);
 }

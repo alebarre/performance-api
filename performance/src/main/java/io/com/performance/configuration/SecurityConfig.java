@@ -44,7 +44,8 @@ public class SecurityConfig {
                                                     "/user/resetpassword/**",
                                                     "/user/verify/password/**",
                                                     "/user/verify/account/**",
-                                                    "/user/refresh/token/**"};
+                                                    "/user/refresh/token/**",
+                                                    "/user/image/**"};
     //private static final String[] PUBLIC_URLS = { "/**" };
 
 

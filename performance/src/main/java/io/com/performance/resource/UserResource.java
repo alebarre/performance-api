@@ -6,12 +6,12 @@ import io.com.performance.DTO.UserDTO;
 import io.com.performance.domain.UserPrincipal;
 import io.com.performance.excecption.ApiException;
 import io.com.performance.form.LoginForm;
+import io.com.performance.form.SettingsForm;
 import io.com.performance.form.UpdateForm;
 import io.com.performance.form.UpdatePasswordForm;
 import io.com.performance.provider.TokenProvider;
 import io.com.performance.service.RoleService;
 import io.com.performance.service.UserService;
-import io.com.performance.utils.UserUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +22,12 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 import java.net.URI;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.concurrent.TimeUnit;
 
 import static io.com.performance.constant.Constants.TOKEN_PREFIX;
@@ -34,6 +39,7 @@ import static java.util.Map.of;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.HttpStatus.*;
 import static org.springframework.security.authentication.UsernamePasswordAuthenticationToken.unauthenticated;
+import static org.springframework.util.MimeTypeUtils.IMAGE_PNG_VALUE;
 import static org.springframework.web.servlet.support.ServletUriComponentsBuilder.*;
 
 @RestController
@@ -180,6 +186,54 @@ public class UserResource {
                         .status(OK)
                         .statusCode(OK.value())
                         .build());
+    }
+
+    @PatchMapping("/update/settings")
+    public ResponseEntity<HttpResponse> updateAccountSettings(Authentication authentication,@RequestBody @Valid SettingsForm form) {
+        UserDTO userDTO = getAuthenticatedUser(authentication);
+        userService.updateUserAccount(userDTO.getId(), form.getEnabled(), form.getNotLocked());
+        return ResponseEntity.ok().body(
+                HttpResponse.builder()
+                        .data(of("user", userService.getUserById(userDTO.getId()), "roles", roleService.getRoles()))
+                        .timeStamp(now().toString())
+                        .message("Account settings updated successfully.")
+                        .status(OK)
+                        .statusCode(OK.value())
+                        .build());
+    }
+
+    @PatchMapping("/togglemfa")
+    public ResponseEntity<HttpResponse> toggleMfa(Authentication authentication) throws InterruptedException {
+        TimeUnit.SECONDS.sleep(3);
+        UserDTO user = userService.toggleMfa(getAuthenticatedUser(authentication).getEmail());
+        return ResponseEntity.ok().body(
+                HttpResponse.builder()
+                        .data(of("user", user, "roles", roleService.getRoles()))
+                        .timeStamp(now().toString())
+                        .message("Multifactor authentication updated.")
+                        .status(OK)
+                        .statusCode(OK.value())
+                        .build());
+    }
+
+    @PatchMapping("/update/image")
+    public ResponseEntity<HttpResponse> updateProfileImage(Authentication authentication, @RequestParam("image")MultipartFile image) throws InterruptedException {
+        TimeUnit.SECONDS.sleep(3);
+        UserDTO user = getAuthenticatedUser(authentication);
+        userService.updateImage(user, image);
+        return ResponseEntity.ok().body(
+                HttpResponse.builder()
+                        .data(of("user", userService.getUserById(user.getId()), "roles", roleService.getRoles()))
+                        .timeStamp(now().toString())
+                        .message("Profile image updated.")
+                        .status(OK)
+                        .statusCode(OK.value())
+                        .build());
+    }
+
+    @GetMapping(value = "/image/{fileName}", produces = IMAGE_PNG_VALUE)
+    public byte[] getProfileImage(@PathVariable("fileName") String fileName) throws IOException {
+        return Files.readAllBytes(Paths.get(System.getProperty("user.home") + "/Downloads/images/" + fileName));
     }
 
     @GetMapping("/verify/account/{key}")

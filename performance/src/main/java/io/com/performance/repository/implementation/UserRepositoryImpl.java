@@ -23,23 +23,31 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Repository;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
+import java.nio.file.Path;
+
 
 import static io.com.performance.constant.Constants.DATE_FORMAT;
 import static io.com.performance.enumeration.RoleType.ROLE_USER;
 import static io.com.performance.enumeration.VerificationType.ACCOUNT;
 import static io.com.performance.enumeration.VerificationType.PASSWORD;
 import static io.com.performance.query.UserQuery.*;
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 import static java.util.Map.of;
 import static java.util.Objects.requireNonNull;
 import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.time.DateFormatUtils.format;
 import static org.apache.commons.lang3.time.DateUtils.addDays;
+import static org.springframework.web.servlet.support.ServletUriComponentsBuilder.fromCurrentContextPath;
 
 @Repository
 @RequiredArgsConstructor
@@ -269,6 +277,64 @@ public class UserRepositoryImpl implements UserRepository<User>, UserDetailsServ
         }
     }
 
+    @Override
+    public void updateUserAccount(Long userId, Boolean enabled, Boolean notLocked) {
+        try {
+            jdbc.update(UPDATE_USER_SETTINGS_QUERY, of("userId", userId, "enabled", enabled, "notLocked", notLocked ));
+         } catch (Exception exception) {
+            log.error(exception.getMessage());
+            throw new ApiException("An error occurred. Please try again.");
+        }
+    }
+
+    @Override
+    public User toggleMfa(String email) {
+        User user = getUserByEmail(email);
+        if(isBlank(user.getPhone())){
+            throw new ApiException("You need a phone number to change a multi factor authentication.");
+        }
+        user.setUsingMfa(!user.isUsingMfa());
+        try {
+            jdbc.update(TOGGLE_USER_MFA_QUERY, of("email", email, "isUsingMfa", user.isUsingMfa()));
+            return user;
+        } catch (Exception exception) {
+            log.error(exception.getMessage());
+            throw new ApiException("Unable to change multi factor authentication.");
+        }
+    }
+
+    @Override
+    public void updateImage(UserDTO user, MultipartFile image) {
+        String userImgUrl = setUserImageUrl(user.getEmail());
+        user.setImageUrl(userImgUrl);
+        saveImage(user.getEmail(), image);
+        jdbc.update(UPDATE_USER_IMAGE_QUERY, of("imageUrl", userImgUrl, "id", user.getId()));
+    }
+
+    private String setUserImageUrl(String email) {
+        return fromCurrentContextPath().path("/user/image/" + email + ".png").toUriString();
+    }
+
+    private void saveImage(String email, MultipartFile image) {
+        Path fileStorageLocation = Paths.get(System.getProperty("user.home") + "/Downloads/images/").toAbsolutePath().normalize();
+        if(!Files.exists(fileStorageLocation)) {
+            try {
+                Files.createDirectories(fileStorageLocation);
+            } catch (Exception exception) {
+                log.error(exception.getMessage());
+                throw new ApiException("Unable to create directories to save image");
+            }
+            log.info("Created directories: {}", fileStorageLocation);
+        }
+        try {
+            Files.copy(image.getInputStream(), fileStorageLocation.resolve(email + ".png"), REPLACE_EXISTING);
+        } catch (IOException exception) {
+            log.error(exception.getMessage());
+            throw new ApiException(exception.getMessage());
+        }
+        log.info("File saved in: {} folder", fileStorageLocation);
+    }
+
     private boolean isTokenMatch(String url, String tokenToCompare) {
         String prefix = "verifypassword/";
         int index = url.indexOf(prefix);
@@ -328,6 +394,6 @@ public class UserRepositoryImpl implements UserRepository<User>, UserDetailsServ
     }
 
     private String getVerificationUrl(String key, String type){
-        return ServletUriComponentsBuilder.fromCurrentContextPath().path("/user/verify" + type + "/" + key).toUriString();
+        return fromCurrentContextPath().path("/user/verify" + type + "/" + key).toUriString();
     }
 }
