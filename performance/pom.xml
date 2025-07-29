@@ -87,9 +87,9 @@
             <version>4.2.1</version>
         </dependency>
         <dependency>
-            <groupId>io.com</groupId>
-            <artifactId>performance</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
+            <groupId>nl.basjes.parse.useragent</groupId>
+            <artifactId>yauaa</artifactId>
+            <version>7.31.0</version>
         </dependency>
     </dependencies>
 
