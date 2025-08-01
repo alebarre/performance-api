@@ -2,13 +2,18 @@ package io.com.performance.domain;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.validation.annotation.Validated;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 
 @Data
 @SuperBuilder
@@ -18,17 +23,18 @@ import java.time.LocalDateTime;
 public class User {
     private  Long id;
 
-    @NotEmpty(message = "First name cannot be empty")
+    @NotEmpty(message = "Primeiro nome não pode estar vazio")
+    @Size(min = 3, max = 50, message = "O nome deve conter entre 3 e 50 caracteres.")
     private String firstName;
 
-    @NotEmpty(message = "Last name cannot be empty")
+    @NotEmpty(message = "Último nome não pode estar vazio")
     private String lastName;
 
-    @NotEmpty(message = "E-mail cannot be empty")
-    @Email(message = "Invalid e-mail. Please, enter a valid email address.")
+    @NotEmpty(message = "E-mail não pode estar vazio")
+    @Email(message = "E-mail inválido. Por favor reveja e tente novamente.")
     private String email;
 
-    @NotEmpty(message = "Password cannot be empty")
+    @NotEmpty(message = "Senha não pode estar vazia")
     private String password;
     private String address;
     private String phone;

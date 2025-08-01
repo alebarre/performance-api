@@ -262,17 +262,17 @@ public class UserRepositoryImpl implements UserRepository<User>, UserDetailsServ
     @Override
     public void updatePassword(Long id, String currentPassword, String newPassword, String confirmNewPassword) {
         if (!newPassword.equals(confirmNewPassword)) {
-            throw new ApiException("Password doesn´t match. Please try again.");
+            throw new ApiException("Senhas não conferem. Por favor tente novamente..");
         } else {
             User user = get(id);
             if(encoder.matches(currentPassword, user.getPassword())) {
                 try {
                     jdbc.update(UPDATE_USER_PASSWORD_BY_ID_QUERY, of("userId", id, "password", encoder.encode(newPassword)));
                 } catch (Exception exception) {
-                    throw new ApiException("An error occurred. Please try again.");
+                    throw new ApiException("Ocorreu um erro. por favor tente novamente.");
                 }
             } else {
-                throw new ApiException("Incorrect current password. Please try again.");
+                throw new ApiException("Senha atual não confere. Por favor, tente novamente.");
             }
         }
     }
