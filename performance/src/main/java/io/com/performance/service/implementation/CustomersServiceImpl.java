@@ -8,15 +8,12 @@ import io.com.performance.service.CustomerService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.RandomStringUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
 
-import static org.apache.commons.lang3.RandomStringUtils.*;
 import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
 import static org.springframework.data.domain.PageRequest.of;
 
@@ -73,10 +70,16 @@ public class CustomersServiceImpl implements CustomerService {
     }
 
     @Override
-    public void addInvoiceToACustomer(Long id, Long invoiceId) {
+    public void addInvoiceToACustomer(Long id, Invoice invoice) {
+        invoice.setInvoiceNumber(randomAlphanumeric(8).toUpperCase());
         Customer customer = customerRepository.findById(id).get();
-        Invoice invoice =  invoiceRepository.findById(invoiceId).get();
         invoice.setCustomer(customer);
         invoiceRepository.save(invoice);
     }
+
+    @Override
+    public Invoice getInvoice(Long id) {
+        return invoiceRepository.findById(id).get();
+    }
+
 }
