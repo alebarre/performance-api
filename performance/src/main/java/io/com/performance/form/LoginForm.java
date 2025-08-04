@@ -7,11 +7,11 @@ import lombok.Data;
 @Data
 public class LoginForm {
 
-    @NotEmpty(message = "Email cannot be empty.")
-    @Email(message = "Invalid email. Please enter an valid email address.")
+    @NotEmpty(message = "Campo e-mail não pode estar vazio.")
+    @Email(message = "E-mail inválido. Por favor, entre com um endereço de e-mail válido.")
     private String email;
 
-    @NotEmpty(message = "Password cannot be empty")
+    @NotEmpty(message = "Campo senha não pode estar vazio.")
     private String password;
 
 }

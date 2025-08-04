@@ -8,13 +8,13 @@ import lombok.Setter;
 @Setter
 public class UpdatePasswordForm {
 
-    @NotEmpty(message = "Current password cannot be empty")
+    @NotEmpty(message = "Campo da senha atual não pode estar vazio.")
     private String currentPassword;
 
-    @NotEmpty(message = "New password cannot be empty")
+    @NotEmpty(message = "Campo da nova senha não pode estar vazio.")
     private String newPassword;
 
-    @NotEmpty(message = "Confirmation password cannot be empty")
+    @NotEmpty(message = "Senhas digitadas não coincidem. Reveja e tente novamente.")
     private String confirmNewPassword;
 
 }

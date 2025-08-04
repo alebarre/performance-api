@@ -21,7 +21,7 @@ public class UpdateForm {
     @NotEmpty(message = "Campo e-mail não pode estar vazio.")
     @Pattern(
             regexp = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$",
-            message = "Email inválido"
+            message = "E-mail inválido. Por favor, entre com um endereço de e-mail válido."
     )
     private String email;
 
