@@ -2,18 +2,23 @@ package io.com.performance.service.implementation;
 
 import io.com.performance.domain.Customer;
 import io.com.performance.domain.Invoice;
+import io.com.performance.domain.Stats;
 import io.com.performance.repository.CustomerRepository;
 import io.com.performance.repository.InvoiceRepository;
+import io.com.performance.rowmapper.StatsRowMapper;
 import io.com.performance.service.CustomerService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
+import java.util.Map;
 
+import static io.com.performance.query.CustomerQuery.STATS_QUERY;
 import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
 import static org.springframework.data.domain.PageRequest.of;
 
@@ -24,8 +29,8 @@ import static org.springframework.data.domain.PageRequest.of;
 public class CustomersServiceImpl implements CustomerService {
 
     private final CustomerRepository customerRepository;
-
     private final InvoiceRepository invoiceRepository;
+    private final NamedParameterJdbcTemplate jdbc;
 
     @Override
     public Customer createCustomer(Customer customer) {
@@ -80,6 +85,11 @@ public class CustomersServiceImpl implements CustomerService {
     @Override
     public Invoice getInvoice(Long id) {
         return invoiceRepository.findById(id).get();
+    }
+
+    @Override
+    public Stats getStats() {
+        return jdbc.queryForObject(STATS_QUERY, Map.of(), new StatsRowMapper());
     }
 
 }

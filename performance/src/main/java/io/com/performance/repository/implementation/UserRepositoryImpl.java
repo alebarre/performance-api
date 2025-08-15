@@ -40,6 +40,7 @@ import static io.com.performance.enumeration.RoleType.ROLE_USER;
 import static io.com.performance.enumeration.VerificationType.ACCOUNT;
 import static io.com.performance.enumeration.VerificationType.PASSWORD;
 import static io.com.performance.query.UserQuery.*;
+import static io.com.performance.utils.SmsUtils.sendSMS;
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 import static java.util.Map.of;
 import static java.util.Objects.requireNonNull;
@@ -160,13 +161,13 @@ public class UserRepositoryImpl implements UserRepository<User>, UserDetailsServ
             log.info("Verification Code: {}", verificationCode);
         } catch (Exception exception) {
             log.error(exception.getMessage());
-            throw new ApiException("An error occurred. Please try again.");
+            throw new ApiException("Problemas no envio do código SMS ao número cadastrado.");
         }
     }
 
     @Override
     public User verifyCode(String email, String code) {
-        if(isVerificationCodeExpired(code)) throw new ApiException("This code has expired. Please login again.");
+        if(isVerificationCodeExpired(code)) throw new ApiException("Código expirado. Tente novamente.");
         try {
             User userByCode = jdbc.queryForObject(SELECT_USER_BY_USER_CODE_QUERY, of("code", code), new UserRowMapper());
             User userByEmail = jdbc.queryForObject(SELECT_USER_BY_EMAIL_QUERY, of("email", email), new UserRowMapper());
@@ -174,18 +175,18 @@ public class UserRepositoryImpl implements UserRepository<User>, UserDetailsServ
                 jdbc.update(DELETE_CODE, of("code", code));
                 return userByCode;
             } else {
-                throw new ApiException("Code is invalid. Please try again.");
+                throw new ApiException("Código inválido. Tente novamente.");
             }
         } catch (EmptyResultDataAccessException exception) {
-            throw new ApiException("Could not find record");
+            throw new ApiException("Não pode acahr o registro");
         } catch (Exception exception) {
-            throw new ApiException("An error occurred. Please try again.");
+            throw new ApiException("Ocorreu um erro. Por favor tente novamente.");
         }
     }
 
     @Override
     public void resetPassword(String email) {
-        if(getEmailCount(email.trim().toLowerCase()) <= 0) throw new ApiException("There is no account for this email address.");
+        if(getEmailCount(email.trim().toLowerCase()) <= 0) throw new ApiException("Não foi encontrada conta para o e-mail fornecido..");
         try {
             String expirationDate = format(addDays(new Date(), 1), DATE_FORMAT);
             User user = getUserByEmail(email);
@@ -195,20 +196,20 @@ public class UserRepositoryImpl implements UserRepository<User>, UserDetailsServ
             //sendEmail(user.getFirstName(), email, verificationUrl, PASSWORD);
             log.info("Verification URL: {}", verificationUrl);
         } catch (Exception exception) {
-            throw new ApiException("An error occurred. Please try again.");
+            throw new ApiException("Ocorreu um erro. Por favor tente novamente.");
         }
     }
 
     @Override
     public User verifyPasswordKey(String key) {
-        if(isLinkExpired(key, PASSWORD)) throw new ApiException("This link has expired. Please reset your password again.");
+        if(isLinkExpired(key, PASSWORD)) throw new ApiException("Esse link expirou! Refaça o reset da sua senha.");
         try {
             User user = jdbc.queryForObject(SELECT_USER_BY_PASSWORD_URL_QUERY, of("url", getVerificationUrl(key, PASSWORD.getType())), new UserRowMapper());
             //jdbc.update("DELETE_USER_FROM_PASSWORD_VERIFICATION_QUERY", of("id", user.getId())); //Depends on use case / developer or business
             return user;
         } catch (EmptyResultDataAccessException exception) {
             log.error(exception.getMessage());
-            throw new ApiException("This link is not valid. Please reset your password again.");
+            throw new ApiException("Esse link não é válido! Refaça o reset da sua senha.");
         } catch (Exception exception) {
             log.error(exception.getMessage());
             throw new ApiException("An error occurred. Please try again.");
@@ -219,15 +220,15 @@ public class UserRepositoryImpl implements UserRepository<User>, UserDetailsServ
     public void renewPassword(String key, String password, String confirmPassword) {
         String url = jdbc.query(SELECT_URL_FROM_VERIFFICATIONS, rs -> rs.next() ? rs.getString("url") : null);
         if (!isTokenMatch(url, key)) {
-            throw new ApiException("This link has expired. Please reset your password again.");
+            throw new ApiException("Esse link expirou! Refaça o reset da sua senha.");
         }
-        if(!password.equals(confirmPassword)) throw new ApiException("Passwords don't match. Please try again.");
+        if(!password.equals(confirmPassword)) throw new ApiException("Senhas não coincidem. Tente novamente");
         try {
             jdbc.update(UPDATE_USER_PASSWORD_BY_URL_QUERY, of("password", encoder.encode(password), "url", getVerificationUrl(key, PASSWORD.getType())));
             jdbc.update(DELETE_VERIFICATION_BY_URL_QUERY, of("url", getVerificationUrl(key, PASSWORD.getType())));
         } catch (Exception exception) {
             log.error(exception.getMessage());
-            throw new ApiException("An error occurred. Please try again.");
+            throw new ApiException("Ocorreu um erro. Tente novamente.");
         }
     }
 

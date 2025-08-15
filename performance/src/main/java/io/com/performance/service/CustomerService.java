@@ -1,8 +1,8 @@
 package io.com.performance.service;
 
-import io.com.performance.DTO.UserDTO;
 import io.com.performance.domain.Customer;
 import io.com.performance.domain.Invoice;
+import io.com.performance.domain.Stats;
 import org.springframework.data.domain.Page;
 
 public interface CustomerService {
@@ -21,4 +21,6 @@ public interface CustomerService {
     void addInvoiceToACustomer(Long id, Invoice invoice);
 
     Invoice getInvoice(Long id);
+
+    Stats getStats();
 }
