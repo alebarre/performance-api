@@ -2,15 +2,15 @@ package io.com.performance.enumeration;
 
 
 public enum EventType {
-    LOGIN_ATTEMPT("You tried to log in"),
-    LOGIN_ATTEMPT_FAILURE("You tried to log in and you failed"),
-    LOGIN_ATTEMPT_SUCCESS("You tried to log in and you succeeded"),
-    PROFILE_UPDATE("You updated your profile information"),
-    PROFILE_PICTURE_UPDATE("You updated your profile picture"),
-    ROLE_UPDATE("You updated your role and permissions"),
-    ACCOUNT_SETTINGS_UPDATE("You updated your account settings"),
-    MFA_UPDATE("You updated your MFA settings"),
-    PASSWORD_UPDATE("You updated your password");
+    LOGIN_ATTEMPT("Você tentou se logar."),
+    LOGIN_ATTEMPT_FAILURE("Você tentou se logar SEM SUCESSO."),
+    LOGIN_ATTEMPT_SUCCESS("Você tentou se logar COM SUCESSO."),
+    PROFILE_UPDATE("Você atualizou suias informações de perfil."),
+    PROFILE_PICTURE_UPDATE("Você atualizou sua foto de perfil"),
+    ROLE_UPDATE("Você atualizou suas permissões"),
+    ACCOUNT_SETTINGS_UPDATE("Você atualizou configuraçoes da conta"),
+    MFA_UPDATE("Você atualizou as configurações de MFA (login em dois fatores)"),
+    PASSWORD_UPDATE("Você Atualizou a sua senha.");
 
     private final String description;
 

@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.swing.text.html.Option;
 import java.net.URI;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 import static java.time.LocalDateTime.now;
 import static java.util.Map.of;
@@ -69,12 +70,13 @@ public class CustomerResource {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<HttpResponse> getCustomer(@AuthenticationPrincipal UserDTO user, Optional<String> name, @RequestParam Optional<Integer> page, @RequestParam Optional<Integer> size) {
+    public ResponseEntity<HttpResponse> getCustomer(@AuthenticationPrincipal UserDTO user, Optional<String> name, @RequestParam Optional<Integer> page, @RequestParam Optional<Integer> size) throws InterruptedException {
+        //TimeUnit.SECONDS.sleep(3);
         return ResponseEntity.ok(
                 HttpResponse.builder()
                         .timeStamp(now().toString())
                         .data(of("user", userService.getUserByEmail(user.getEmail()),
-                                "customers", customerService.serachCustomers(name.orElse(""), page.orElse(0), size.orElse(10))))
+                                "page", customerService.serachCustomers(name.orElse(""), page.orElse(0), size.orElse(10))))
                         .message("Customers retrieved")
                         .status(OK)
                         .statusCode(OK.value())

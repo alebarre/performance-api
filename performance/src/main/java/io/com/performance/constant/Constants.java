@@ -20,5 +20,5 @@ public class Constants {
     public static final String X_FORWARDED_FOR_HEADER = "X-FORWARDED-FOR";
 
     // Date
-    public static final String DATE_FORMAT = "yyyy-MM-dd hh:mm:ss";
+    public static final String DATE_FORMAT = "dd-MM-yyyy hh:mm:ss";
 }

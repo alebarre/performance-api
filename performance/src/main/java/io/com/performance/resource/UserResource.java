@@ -213,7 +213,7 @@ public class UserResource {
 
     @PatchMapping("/togglemfa")
     public ResponseEntity<HttpResponse> toggleMfa(Authentication authentication) throws InterruptedException {
-        TimeUnit.SECONDS.sleep(3);
+        //TimeUnit.SECONDS.sleep(3);
         UserDTO user = userService.toggleMfa(getAuthenticatedUser(authentication).getEmail());
         publisher.publishEvent(new NewUserEvent(user.getEmail(), MFA_UPDATE));
         return ResponseEntity.ok().body(
@@ -228,7 +228,7 @@ public class UserResource {
 
     @PatchMapping("/update/image")
     public ResponseEntity<HttpResponse> updateProfileImage(Authentication authentication, @RequestParam("image")MultipartFile image) throws InterruptedException {
-        TimeUnit.SECONDS.sleep(3);
+        //TimeUnit.SECONDS.sleep(3);
         UserDTO user = getAuthenticatedUser(authentication);
         userService.updateImage(user, image);
         publisher.publishEvent(new NewUserEvent(user.getEmail(), PROFILE_PICTURE_UPDATE));
