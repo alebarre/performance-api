@@ -6,6 +6,7 @@ import io.com.performance.domain.HttpResponse;
 import io.com.performance.domain.Invoice;
 import io.com.performance.service.CustomerService;
 import io.com.performance.service.UserService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -84,12 +85,12 @@ public class CustomerResource {
     }
 
     @PutMapping("/update")
-    public ResponseEntity<HttpResponse> updateCustomer(@AuthenticationPrincipal UserDTO user, Customer customer) {
+    public ResponseEntity<HttpResponse> updateCustomer(@AuthenticationPrincipal UserDTO user, @Valid @RequestBody Customer customer) {
         return ResponseEntity.ok(
                 HttpResponse.builder()
                         .timeStamp(now().toString())
                         .data(of("user", userService.getUserByEmail(user.getEmail()),
-                                "customers", customerService.updateCustomer(customer)))
+                                "customer", customerService.updateCustomer(customer)))
                         .message("Customers retrieved")
                         .status(OK)
                         .statusCode(OK.value())
