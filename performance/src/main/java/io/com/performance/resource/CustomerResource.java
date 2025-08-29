@@ -4,6 +4,7 @@ import io.com.performance.DTO.UserDTO;
 import io.com.performance.domain.Customer;
 import io.com.performance.domain.HttpResponse;
 import io.com.performance.domain.Invoice;
+import io.com.performance.service.AddressService;
 import io.com.performance.service.CustomerService;
 import io.com.performance.service.UserService;
 import jakarta.validation.Valid;
@@ -29,6 +30,7 @@ public class CustomerResource {
 
     private final CustomerService customerService;
     private final UserService userService;
+    private final AddressService addressService;
 
     @GetMapping("/list")
     public ResponseEntity<HttpResponse> getCustomers(@AuthenticationPrincipal UserDTO user, @RequestParam Optional<Integer> page, @RequestParam Optional<Integer> size) {
@@ -63,7 +65,8 @@ public class CustomerResource {
                 HttpResponse.builder()
                         .timeStamp(now().toString())
                         .data(of("user", userService.getUserByEmail(user.getEmail()),
-                                "customer", customerService.getCustomer(id)))
+                                "customer", customerService.getCustomer(id),
+                                "Addresses", addressService.getAddressesByCustomerId(id)))
                         .message("Customer retrieved")
                         .status(OK)
                         .statusCode(OK.value())

@@ -1,10 +1,15 @@
 package io.com.performance.service;
 
+import io.com.performance.domain.Address;
 import io.com.performance.domain.Customer;
 import io.com.performance.domain.Invoice;
 import io.com.performance.domain.Stats;
 import org.springframework.data.domain.Page;
+import org.springframework.stereotype.Service;
 
+import java.util.List;
+
+@Service
 public interface CustomerService {
 
     //Customers functionalities

@@ -3,9 +3,6 @@ package io.com.performance.service;
 import io.com.performance.DTO.UserDTO;
 import io.com.performance.domain.User;
 import io.com.performance.form.UpdateForm;
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
 import org.springframework.web.multipart.MultipartFile;
 
 public interface UserService {

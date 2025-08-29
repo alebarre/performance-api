@@ -1,6 +1,7 @@
 package io.com.performance.domain;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
@@ -8,8 +9,10 @@ import jakarta.validation.constraints.Size;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 
 import static jakarta.persistence.CascadeType.ALL;
 import static jakarta.persistence.FetchType.*;
@@ -36,11 +39,19 @@ public class Customer {
 
     private String type;
     private String status;
-    private String address;
+
+    @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Address> addresses = new ArrayList<>();
+
+    @PrePersist
+    @PreUpdate
+    private void setAddressesCustomer() {
+        addresses.forEach(addr -> addr.setCustomer(this));
+    }
+
 
     @NotEmpty(message = "Telefone não pode estar vazio")
     @Size(min = 10, max = 12, message = "O telefone deve conter entre 10 e 12 caracteres.")
-
     private String phone;
 
     private String imageUrl;

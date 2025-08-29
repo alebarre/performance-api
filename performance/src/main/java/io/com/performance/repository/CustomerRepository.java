@@ -9,5 +9,4 @@ import org.springframework.data.repository.PagingAndSortingRepository;
 public interface CustomerRepository extends PagingAndSortingRepository<Customer, Long>, ListCrudRepository<Customer, Long> {
 
     Page<Customer> findByNameContaining(String name, Pageable pageable);
-
 }

@@ -1,5 +1,6 @@
 package io.com.performance.service.implementation;
 
+import io.com.performance.domain.Address;
 import io.com.performance.domain.Customer;
 import io.com.performance.domain.Invoice;
 import io.com.performance.domain.Stats;
@@ -16,6 +17,7 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 import static io.com.performance.query.CustomerQuery.STATS_QUERY;
@@ -35,6 +37,7 @@ public class CustomersServiceImpl implements CustomerService {
     @Override
     public Customer createCustomer(Customer customer) {
         customer.setCreatedAt(new Date());
+        customer.getAddresses().forEach(a -> a.setCustomer(customer));
         return customerRepository.save(customer);
     }
 

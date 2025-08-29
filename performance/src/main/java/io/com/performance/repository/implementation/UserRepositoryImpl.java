@@ -1,5 +1,6 @@
 package io.com.performance.repository.implementation;
 
+import io.com.performance.domain.Address;
 import io.com.performance.domain.Role;
 import io.com.performance.domain.User;
 import io.com.performance.domain.UserPrincipal;

@@ -1,6 +1,7 @@
 package io.com.performance.repository;
 
 import io.com.performance.DTO.UserDTO;
+import io.com.performance.domain.Address;
 import io.com.performance.domain.User;
 import io.com.performance.form.UpdateForm;
 import org.springframework.stereotype.Repository;
